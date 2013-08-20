@@ -1,0 +1,101 @@
+这一课在上一课的基础
+我们来绘制简单的 3D图形
+请注意 三角形都是逆时针绘制
+
+我们来绘制一个矩形，和金字塔
+矩形如上节一样，是由6个四边形组成的
+因此我们要绘制6个面
+
+注意，旋转函数所放的地方不对，会产生很喜剧的效果 呵呵
+
+  public void display(GLAutoDrawable drawable)
+  {
+    GL gl = drawable.getGL();
+    gl.glClear(GL.GL_COLOR_BUFFER_BIT|GL.GL_DEPTH_BUFFER_BIT);    //清除颜色缓冲
+    gl.glLoadIdentity();    //重置矩阵
+    gl.glTranslatef(0.0f, 0.0f, -6.0f);    //向内(Z轴负方向)移动6
+    //---------
+      
+      if(xrot>360){
+    	  xrot=0;
+      }
+    //---------------------
+    gl.glTranslatef(-2.0f, 0.0f, 0.0f);
+    gl.glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+    //gl.glColor3f(0.0f, 1.0f, 0.0f);        //设置颜色(r,g,b)绿色
+    //前面
+    gl.glBegin(GL.GL_QUADS);               //开始绘制多边形
+       gl.glColor3f(1.0f, 0.0f, 0.0f);gl.glVertex3f(-1.0f, -1.0f, 1.0f);  //第1个顶点
+       gl.glColor3f(0.0f, 1.0f, 0.0f);gl.glVertex3f(1.0f, -1.0f, 1.0f);   //第2个顶点
+       gl.glColor3f(0.0f, 0.0f, 1.0f);gl.glVertex3f(1.0f, 1.0f, 1.0f);    //第3个顶点
+       gl.glColor3f(1.0f, 1.0f, 0.0f);gl.glVertex3f(-1.0f, 1.0f, 1.0f);   //第4个顶点
+    //后面
+      gl.glColor3f(1.0f, 0.0f, 0.0f);gl.glVertex3f(1.0f, -1.0f, -1.0f);  //第1个顶点
+      gl.glColor3f(0.0f, 1.0f, 0.0f);gl.glVertex3f(-1.0f, -1.0f, -1.0f); //第2个顶点
+      gl.glColor3f(0.0f, 0.0f, 1.0f);gl.glVertex3f(-1.0f, 1.0f, -1.0f);  //第3个顶点
+      gl.glColor3f(1.0f, 1.0f, 0.0f);gl.glVertex3f(1.0f, 1.0f, -1.0f);   //第4个顶点
+   //左面
+     gl.glColor3f(1.0f, 0.0f, 0.0f);gl.glVertex3f(-1.0f, -1.0f, -1.0f);  //第1个顶点
+     gl.glColor3f(0.0f, 1.0f, 0.0f);gl.glVertex3f(-1.0f, -1.0f, 1.0f);   //第2个顶点
+     gl.glColor3f(0.0f, 0.0f, 1.0f);gl.glVertex3f(-1.0f, 1.0f, 1.0f);    //第3个顶点
+     gl.glColor3f(1.0f, 1.0f, 0.0f);gl.glVertex3f(-1.0f, 1.0f, -1.0f);   //第4个顶点
+   //右面
+     gl.glColor3f(1.0f, 0.0f, 0.0f);gl.glVertex3f(1.0f, -1.0f, 1.0f);  //第1个顶点
+     gl.glColor3f(0.0f, 1.0f, 0.0f);gl.glVertex3f(1.0f, -1.0f, -1.0f); //第2个顶点
+     gl.glColor3f(0.0f, 0.0f, 1.0f);gl.glVertex3f(1.0f, 1.0f, -1.0f);  //第3个顶点
+     gl.glColor3f(1.0f, 1.0f, 0.0f);gl.glVertex3f(1.0f, 1.0f, 1.0f);   //第4个顶点
+   //上面
+     gl.glColor3f(1.0f, 0.0f, 0.0f);gl.glVertex3f(-1.0f, 1.0f, 1.0f);  //第1个顶点
+     gl.glColor3f(0.0f, 1.0f, 0.0f);gl.glVertex3f(1.0f, 1.0f, 1.0f);   //第2个顶点
+     gl.glColor3f(0.0f, 0.0f, 1.0f);gl.glVertex3f(1.0f, 1.0f, -1.0f);  //第3个顶点
+     gl.glColor3f(1.0f, 1.0f, 0.0f);gl.glVertex3f(-1.0f, 1.0f, -1.0f); //第4个顶点
+   //下面
+     gl.glColor3f(1.0f, 0.0f, 0.0f);gl.glVertex3f(1.0f, -1.0f, 1.0f);    //第1个顶点
+     gl.glColor3f(0.0f, 1.0f, 0.0f);gl.glVertex3f(-1.0f, -1.0f, 1.0f);   //第2个顶点
+     gl.glColor3f(0.0f, 0.0f, 1.0f);gl.glVertex3f(-1.0f, -1.0f, -1.0f);  //第3个顶点
+     gl.glColor3f(1.0f, 1.0f, 0.0f);gl.glVertex3f(1.0f,  -1.0f, -1.0f);  //第4个顶点
+   gl.glEnd();
+   
+  
+    gl.glTranslatef(4.0f, 0.0f, 0.0f);
+    gl.glRotatef(xrot, 0.0f, 0.0f, 1.0f);
+    
+    gl.glBegin(GL.GL_TRIANGLES);
+      gl.glColor3f(1.0f, 0.0f, 0.0f);			
+      gl.glVertex3f( 0.0f, 1.0f, 0.0f);			    // 三角形的上顶点 (前侧面)
+	  gl.glColor3f(0.0f, 1.0f, 0.0f);
+	  gl.glVertex3f(-1.0f,-1.0f, 1.0f);			    // 三角形的左下顶点 (前侧面)
+	  gl.glColor3f(0.0f,0.0f,1.0f);			
+	  gl.glVertex3f( 1.0f,-1.0f, 1.0f);			    // 三角形的右下顶点 (前侧面)
+	
+	  gl.glColor3f(1.0f, 0.0f, 0.0f);			
+	  gl.glVertex3f( 0.0f, 1.0f, 0.0f);			    // 三角形的上顶点 (右侧面)
+	  gl.glColor3f(0.0f, 1.0f, 0.0f);		
+	  gl.glVertex3f( 1.0f,-1.0f, 1.0f);			    // 三角形的左下顶点 (右侧面)
+	  gl.glColor3f(0.0f,1.0f,0.0f);			
+	  gl.glVertex3f( 1.0f,-1.0f, -1.0f);			// 三角形的右下顶点 (右侧面)
+	
+	  gl.glColor3f(1.0f, 0.0f, 0.0f);			
+	  gl.glVertex3f( 0.0f, 1.0f, 0.0f);			    // 三角形的上顶点 (后侧面)
+	  gl.glColor3f(0.0f, 1.0f, 0.0f);		
+	  gl.glVertex3f( 1.0f,-1.0f, -1.0f);			// 三角形的左下顶点 (后侧面)
+	  gl.glColor3f(0.0f,0.0f,1.0f);			
+	  gl.glVertex3f(-1.0f,-1.0f, -1.0f);			// 三角形的右下顶点 (后侧面)
+	
+	  gl.glColor3f(1.0f, 0.0f, 0.0f);		
+	  gl.glVertex3f( 0.0f, 1.0f, 0.0f);			// 三角形的上顶点 (左侧面)
+	  gl.glColor3f(0.0f,0.0f,1.0f);			
+	  gl.glVertex3f(-1.0f,-1.0f,-1.0f);			// 三角形的左下顶点 (左侧面)
+	  gl.glColor3f(0.0f,1.0f,0.0f);			
+	  gl.glVertex3f(-1.0f,-1.0f, 1.0f);			// 三角形的右下顶点 (左侧面)
+	gl.glEnd();						            // 金字塔绘制结束
+
+
+    xrot+=0.1f;
+
+  }
+[color=red][b]
+声明：[/b][/color]
+     刚开始学习opengl的时候，在网上找了很久，终于找到NeHe的教程，从中得到了很多
+     我也希望我自己东拼西凑弄共享给大家，我也希望有更多的人加入进来，
+     引用时请声明此点

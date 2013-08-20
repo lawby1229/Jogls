@@ -1,0 +1,25 @@
+
+全部代码Eclipse 3.2下测试成功
+
+第6课
+ 读取png图片
+ 	最主要的就是common 里面的TextureLoader.java
+ 	其实很简单，就是调用jogl里面现有的
+ 	看使用方法
+ 	import common.TextureLoader;
+ 		private Texture  pngtexture1;
+ 	
+ 	在init中添加
+ 		pngtexture1 = TextureLoader.load("data/jogl.png");
+ 	在display中添加
+ 	  gl.glEnable(GL.GL_BLEND); //允许混合
+    gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+    gl.glAlphaFunc(GL.GL_GREATER, 0);
+    gl.glEnable(GL.GL_ALPHA);
+    
+  通过 pngtexture1.bind();绑定
+  在下面添加
+  gl.glTexEnvf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+  这样就好了最好还是看源代码
+ 		
+ 		
