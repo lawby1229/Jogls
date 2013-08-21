@@ -18,7 +18,7 @@ public class BeijingFrame extends JFrame {
 	static FPSAnimator animator=null;
 	public BeijingFrame() throws HeadlessException {
 		super("JOGL北京");
-		setSize(600,480);
+		setSize(800,800);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GLCapabilities glcaps=new GLCapabilities();
 		GLCanvas canvas=new GLCanvas(glcaps);

@@ -17,8 +17,9 @@ public class TextureLoader {
 		Texture text = null;
 		try{
 			text = TextureIO.newTexture(new File(fileName), false);
-			text.setTexParameteri(GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-			text.setTexParameteri(GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+			text.setTexParameteri(GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+			text.setTexParameteri(GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+			
 		}catch(Exception e){
 			System.out.println(e.getMessage());
 			System.out.println("Error loading texture " + fileName);

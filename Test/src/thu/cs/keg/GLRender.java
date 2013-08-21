@@ -26,27 +26,48 @@ public class GLRender implements GLEventListener, KeyListener {
 	static int Sizen = 50;
 	int delta;
 	String Version = "";
+	Vector<Integer> x, y, z;
+	int cooLength = 50;
 	private Texture pngtexture1, pngtexture2; // png图片
 
 	public void init(GLAutoDrawable drawable) {
 		System.out.println("init");
+
+		x = new Vector<Integer>();
+		y = new Vector<Integer>();
+		z = new Vector<Integer>();
+		x.add(cooLength);
+		x.add(0);
+		x.add(0);
+		y.add(0);
+		y.add(cooLength);
+		y.add(0);
+		z.add(0);
+		z.add(0);
+		z.add(cooLength);
+		// drawCordinate(x, y, z, gl);
 		// Use debug pipeline
 		// drawable.setGL(new DebugGL(drawable.getGL()));
 
 		GL gl = drawable.getGL();
-
+		GLU glu = new GLU();
+		gl.glShadeModel(GL.GL_SMOOTH);
+		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
 		System.err.println("INIT GL IS: " + gl.getClass().getName());
 
 		// Enable VSync
 		gl.setSwapInterval(1);
 
 		// Setup the drawing area and shading mode
-		gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+		// gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		gl.glShadeModel(GL.GL_SMOOTH); // try setting this to GL_FLAT and see
 										// what happens.
-
+		gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
 		gl.glEnable(GL.GL_TEXTURE_2D);// 启动纹理映射
+
 		pngtexture1 = TextureLoader.load("data/map2.png");
+		gl.glBindTexture(GL.GL_TEXTURE_2D, pngtexture1.getTarget());
+
 		// getSMF("smfmodel/gear.smf");
 	}
 
@@ -74,61 +95,51 @@ public class GLRender implements GLEventListener, KeyListener {
 		r += 1;
 		if (r > 360)
 			r = 0;//
-		// 画坐标轴
+
 		gl.glPushMatrix();
-		gl.glRotatef(r, 0.0f, 1.0f, 0.0f);
-		
-		
-		gl.glLineWidth(1.0f);
-		gl.glColor3f(0.0f, 0.0f, 0.0f);
-		gl.glBegin(GL.GL_LINES);
-		gl.glColor3f(1.0f, 0.0f, 0.0f);
-		gl.glVertex3d(0, 0, 0);
-		gl.glVertex3d(25, 0, 0);
-		gl.glColor3f(0.0f, 1.0f, 0.0f);
-		gl.glVertex3d(0, 0, 0);
-		gl.glVertex3d(0, 10, 0);
-		gl.glColor3f(0.0f, 0.0f, 1.0f);
-		gl.glVertex3d(0, 0, 0);
-		gl.glVertex3d(0, 0, 5);
+		gl.glColor3f(1.0f, 1.0f, 1.0f);
+		// gl.glRotatef(r, 0.0f, 1.0f, 0.0f); // 整体旋转
+		pngtexture1.bind();
+		gl.glTexEnvf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_ENV_MODE, GL.GL_BLEND);
+		float a = 20;
+		gl.glBegin(GL.GL_QUADS);
+		gl.glTexCoord2f(1.0f, 1.0f);
+		gl.glVertex3f(a, 0, a);
+		gl.glTexCoord2f(1.0f, 0.0f);
+		gl.glVertex3f(a, 0, -a);
+		gl.glTexCoord2f(0.0f, 0.0f);
+		gl.glVertex3f(-a, 0, -a);
+		gl.glTexCoord2f(0.0f, 1.0f);
+		gl.glVertex3f(-a, 0, a);
+
 		gl.glEnd();
 		gl.glPopMatrix();
 
 		gl.glPushMatrix();
-	
+
 		gl.glPointSize(4); // 点的大小
-		gl.glTranslatef(0.0f, 4.0f, 0.0f);
-		gl.glRotatef(r, 0.0f, 1.0f, 0.0f); // 整体旋转
+		// gl.glTranslatef(0.0f, 4.0f, 0.0f);
+		// gl.glRotatef(r, 0.0f, 1.0f, 0.0f); // 整体旋转
+
 		gl.glColor3f(1.0f, 0.0f, 0.0f);
+
 		gl.glBegin(GL.GL_POLYGON);// 单个顶点
 		gl.glVertex3f(0.0f, 1.0f, -1.0f);// a点
 		gl.glVertex3f(-1.0f, -1.0f, 0.0f);// b点
 		gl.glVertex3f(1.0f, -1.0f, 0.0f);// c点
 		gl.glEnd();
-		gl.glPopMatrix();
-		//
-		gl.glPushMatrix();
-////		gl.glLoadIdentity();
-		gl.glColor3f(1.0f, 1.0f,1.0f);
-////		gl.glTranslatef(0.0f, 4.0f, 0.0f);
-		gl.glRotatef(r, 0.0f, 1.0f, 0.0f); // 整体旋转
-//		pngtexture1.bind();
-//		gl.glTexEnvf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_ENV_MODE, GL.GL_BLEND);
-//		
-		float a=15;
-		gl.glBegin(GL.GL_POLYGON);
-		gl.glTexCoord2f(0.0f, 1.0f);
-		gl.glVertex3f(-a, 0, -a);
-		gl.glTexCoord2f(0.0f, 0.0f);
-		gl.glVertex3f(-a, 0, a);
-		gl.glTexCoord2f(1.0f, 0.0f);
-		gl.glVertex3f(a, 0, a);
-		gl.glTexCoord2f(1.0f, 1.0f);
-		gl.glVertex3f(a, 0, -a);
+
+		gl.glPointSize(7);
+		gl.glBegin(GL.GL_POINTS);
+		gl.glVertex3d(4, 0, 4);// c点
+		gl.glVertex3d(-4, 0, 4);// c点
 		gl.glEnd();
 		gl.glPopMatrix();
-//		
+		//
 
+		//
+		// 画坐标轴
+		drawCordinate(x, y, z, gl);
 		gl.glFlush();
 
 	}
@@ -144,7 +155,7 @@ public class GLRender implements GLEventListener, KeyListener {
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		// Reset the current matrix to the "identity"
 		// gl.glLoadIdentity();
-		// gl.glViewport(0, 0, WIDTH, HEIGHT);
+		gl.glViewport(0, 0, WIDTH, HEIGHT);
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();
 		// ///case1
@@ -157,7 +168,7 @@ public class GLRender implements GLEventListener, KeyListener {
 
 		// glu.gluPerspective(40.0f, 1.0, 1.0, 50.0);
 		// 眼睛的坐标，眼睛看的地方的坐标，脑袋顶上方的坐标
-		glu.gluLookAt(10, 10, 10, 0, 0, 0, 0, 1, 0);
+		glu.gluLookAt(20, 15, 20, 0, 0, 0, 0, 1, 0);
 
 	}
 
@@ -182,16 +193,21 @@ public class GLRender implements GLEventListener, KeyListener {
 	}
 
 	// 坐标转换
-	public static void drawCordinate(Vector<Double> a, Vector<Double> b,
-			Vector<Double> c, GL gl) {
+	public static void drawCordinate(Vector<Integer> x, Vector<Integer> y,
+			Vector<Integer> z, GL gl) {
+		gl.glPushMatrix();
 		gl.glBegin(GL.GL_LINES);
-		gl.glVertex3d(0, 0, 0);
-		gl.glVertex3d(a.elementAt(0), a.elementAt(1), a.elementAt(2));
-		gl.glVertex3d(0, 0, 0);
-		gl.glVertex3d(b.elementAt(0), b.elementAt(1), b.elementAt(2));
-		gl.glVertex3d(0, 0, 0);
-		gl.glVertex3d(c.elementAt(0), c.elementAt(1), c.elementAt(2));
+		gl.glColor3f(1.0f, 0, 0);
+		gl.glVertex3i(0, 0, 0);
+		gl.glVertex3i(x.elementAt(0), x.elementAt(1), x.elementAt(2));
+		gl.glColor3f(0, 1.0f, 0);
+		gl.glVertex3i(0, 0, 0);
+		gl.glVertex3i(y.elementAt(0), y.elementAt(1), y.elementAt(2));
+		gl.glColor3f(0, 0, 1.0f);
+		gl.glVertex3i(0, 0, 0);
+		gl.glVertex3d(z.elementAt(0), z.elementAt(1), z.elementAt(2));
 		gl.glEnd();
+		gl.glPopMatrix();
 	}
 
 	@Override
