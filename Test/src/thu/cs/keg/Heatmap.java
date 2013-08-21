@@ -28,7 +28,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.jdesktop.swingx.graphics.BlendComposite;
-import org.jdesktop.swingx.graphics.BlendComposite.BlendingMode;
 
 /**
  * An example of a "heat map".
@@ -67,7 +66,7 @@ public class Heatmap extends JPanel implements MouseListener {
 		// Create monochrome image and fill with with
 		monochromeImage = createCompatibleTranslucentImage(width, height);
 		Graphics g = monochromeImage.getGraphics();
-//		g.setColor(Color.white);
+		g.setColor(Color.white);
 		g.fillRect(0, 0, width, height);
 
 		setPreferredSize(new Dimension(width, height));
@@ -113,7 +112,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	private void minusDotImage(Point p, float alpha) {
 		int circleRadius = dotImage.getWidth() / 2;
 		Graphics2D g = (Graphics2D) monochromeImage.getGraphics();
-		g.setComposite(BlendComposite.Luminosity  .derive(alpha));
+		g.setComposite(BlendComposite.Negation           .derive(alpha));
 		g.drawImage(dotImage, null, p.x - circleRadius, p.y - circleRadius);
 	}
 

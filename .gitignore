@@ -5,11 +5,7 @@
 *.pydevproject
 bin/
 tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
+
 
 # External tool builders
 .externalToolBuilders/
