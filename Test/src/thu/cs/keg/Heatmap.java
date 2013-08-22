@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.jdesktop.swingx.graphics.BlendComposite;
+import org.jdesktop.swingx.graphics.BlendComposite.BlendingMode;
 
 /**
  * An example of a "heat map".
@@ -41,7 +42,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	private final BufferedImage backgroundImage;
 
 	/**  */
-	private final BufferedImage dotImage = createFadedCircleImage(96);
+	private final BufferedImage dotImage = createFadedCircleImage(192);
 
 	private BufferedImage monochromeImage;
 
@@ -85,7 +86,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		heatmapImage = colorize(colorOp);
-//		g.drawImage(backgroundImage, 0, 0, this);
+		g.drawImage(backgroundImage, 0, 0, this);
 		g.drawImage(heatmapImage, 0, 0, this);
 	}
 
@@ -112,7 +113,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	private void minusDotImage(Point p, float alpha) {
 		int circleRadius = dotImage.getWidth() / 2;
 		Graphics2D g = (Graphics2D) monochromeImage.getGraphics();
-		g.setComposite(BlendComposite.Negation           .derive(alpha));
+		g.setComposite(BlendComposite.getInstance(BlendingMode.MULTIPLY)           );
 		g.drawImage(dotImage, null, p.x - circleRadius, p.y - circleRadius);
 	}
 
@@ -217,8 +218,9 @@ public class Heatmap extends JPanel implements MouseListener {
 	public static BufferedImage createFadedCircleImage(int size) {
 		float radius = size / 2f;
 		RadialGradientPaint gradient = new RadialGradientPaint(radius, radius,
-				radius, new float[] { 0f, 1f }, new Color[] { Color.BLACK,
-						new Color(0xffffffff, true) });
+				radius, new float[] { 0f, 1f }, new Color[] { Color.black,Color.white
+//						new Color(0xffffffff, true)
+				});
 		BufferedImage im = createCompatibleTranslucentImage(size, size);
 		Graphics2D g = (Graphics2D) im.getGraphics();
 		g.setPaint(gradient);
