@@ -53,6 +53,12 @@ public class Heatmap extends JPanel implements MouseListener {
 	/** Lookup operation used to color the monochrome image according to "heat" */
 	private LookupOp colorOp;
 
+	public double baseLatitude_up=40.1778;
+	public double baseLatitude_dwon=39.7416;
+
+	public double baseLogitude_left=116.1778;
+	public double baseLogitude_right=116.619;
+
 	public Heatmap(BufferedImage backgroundImage) {
 		this.backgroundImage = backgroundImage;
 		int width = backgroundImage.getWidth();
