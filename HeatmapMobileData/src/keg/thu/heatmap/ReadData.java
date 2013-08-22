@@ -13,11 +13,17 @@ import java.util.List;
 
 public class ReadData {
 	List<List<Double>> tMap = new ArrayList<List<Double>>();
-	HashMap<String, Integer> cellMap = new HashMap<String, Integer>();
-
-	public ReadData() {
+	HashMap<Integer, String> cellMap = new HashMap<Integer, String>();
+	double min, max;
+	public ReadData(String dbname) {
 		for (int i = 0; i < 48; i++) {
 			tMap.add(new ArrayList<Double>());
+		}
+		try {
+			viewTable(getConnection(dbname));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -27,7 +33,7 @@ public class ReadData {
 		int t;
 
 		// PrintWriter out=new PrintWriter("temp");
-		String query = "select Latitude,Longitude,ConnectTime,Traffic "
+		String query = "select Longitude,Latitude,ConnectTime,Traffic "
 				+ " from dbo.Traffic5";
 		int i = 0;
 		try {
@@ -42,12 +48,12 @@ public class ReadData {
 			double Traffic;
 			while (rs.next()) {
 				// System.out.println(i+"条数据读入!");
-				Latitude = rs.getDouble("Latitude");
 				Longitude = rs.getDouble("Longitude");
-				if (!cellMap.containsKey(Latitude + "," + Longitude)) {
-					cellMap.put(Latitude + "," + Longitude, cellMap.size());
+				Latitude = rs.getDouble("Latitude");
+				if (!cellMap.containsValue(Longitude + "," + Latitude)) {
+					cellMap.put(cellMap.size(),Longitude + "," + Latitude);
 				}
-				cellid = cellMap.get(Latitude + "," + Longitude);
+				cellid = cellMap.size()-1;
 				Traffic = rs.getDouble("Traffic");
 				Calendar CT = Calendar.getInstance();
 				ConnectionTime = rs.getString("ConnectTime");
@@ -62,14 +68,7 @@ public class ReadData {
 				double newTraffic = tMap.get(timezone).get(cellid) + Traffic;
 				tMap.get(timezone).set(cellid, newTraffic);
 				// int day = CT.get(CT.DAY_OF_YEAR);
-
-				// long FRT_ms=FRT.getTime();
-				// long LPT_ms=LPT.getTime();
-				// String UserAgent=rs.getString("UserAgent");
-				int timeSegment = (int) (hour / 0.5);
-				i++;
-				// System.out.println(i+":已经快了...");
-
+				conn.close();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

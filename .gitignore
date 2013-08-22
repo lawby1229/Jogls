@@ -5,7 +5,9 @@
 *.pydevproject
 bin/
 tmp/
-
+*.class
+.classpath
+*.classpath
 # External tool builders
 .externalToolBuilders/
 

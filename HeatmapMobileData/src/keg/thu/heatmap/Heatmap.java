@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -53,11 +54,13 @@ public class Heatmap extends JPanel implements MouseListener {
 	/** Lookup operation used to color the monochrome image according to "heat" */
 	private LookupOp colorOp;
 
-	public double baseLatitude_up=40.1778;
-	public double baseLatitude_dwon=39.7416;
+	private double baseLatitude_up = 39.7416;
+	private double baseLatitude_dwon = 40.1778;
+	private double baseY = Math.abs(baseLatitude_up - baseLatitude_dwon);
 
-	public double baseLogitude_left=116.1778;
-	public double baseLogitude_right=116.619;
+	private double baseLogitude_left = 116.1778;
+	private double baseLogitude_right = 116.619;
+	private double baseX = baseLogitude_right - baseLogitude_left;
 
 	public Heatmap(BufferedImage backgroundImage) {
 		this.backgroundImage = backgroundImage;
@@ -103,6 +106,19 @@ public class Heatmap extends JPanel implements MouseListener {
 		else if (e.getButton() == MouseEvent.BUTTON3)
 			minusDotImage(e.getPoint(), 0.5f);
 		repaint();
+	}
+
+	public void drawCell(double longi, double lat) {
+		int circleRadius = dotImage.getWidth() / 2;
+		Graphics2D g = (Graphics2D) monochromeImage.getGraphics();
+		g.setComposite(BlendComposite.Multiply);
+		g.drawImage(
+				dotImage,
+				null,
+				(int) Math.rint(((longi - baseLogitude_left) / baseX)
+						* backgroundImage.getWidth() - circleRadius),
+				(int) Math.rint(((lat - baseLatitude_up) / baseY)
+						* backgroundImage.getHeight() - circleRadius));
 	}
 
 	/**
@@ -190,7 +206,6 @@ public class Heatmap extends JPanel implements MouseListener {
 				MultipleGradientPaint.CycleMethod.NO_CYCLE);
 		BufferedImage im = createCompatibleTranslucentImage(size.width,
 				size.height);
-	
 
 		Graphics2D g = im.createGraphics();
 		g.setPaint(gradient);
@@ -248,12 +263,31 @@ public class Heatmap extends JPanel implements MouseListener {
 	public static void main(String... args) throws IOException {
 		BufferedImage backgroundImage = ImageIO.read(new FileInputStream(
 				"data/map2.png"));
-		JPanel comp = new Heatmap(backgroundImage);
+		Heatmap comp = new Heatmap(backgroundImage);
 		JFrame frame = new JFrame("Heatmap");
 		frame.add(comp);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.pack();
 		frame.setVisible(true);
+
+		ReadData rd = new ReadData("BejingData");
+		List<Double> cell0 = rd.tMap.get(0);
+		double max = -1, min = Double.MAX_VALUE;
+		for (int i = 0; i < cell0.size(); i++) {
+			if (cell0.get(i) > max)
+				max = cell0.get(i);
+			if (cell0.get(i) < min)
+				min = cell0.get(i);
+		}
+		for (int i = 0; i < cell0.size(); i++) {
+			double longi = Double.valueOf(rd.cellMap.get(i).split(",")[0]);
+			double lat = Double.valueOf(rd.cellMap.get(i).split(",")[1]);
+			for (int j = 0; j < cell0.get(i) * 10 / max; j++) {
+				comp.drawCell(longi, lat);
+			}
+		}
+		frame.repaint();
+
 	}
 }
