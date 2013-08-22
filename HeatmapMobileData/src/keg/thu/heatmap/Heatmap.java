@@ -1,6 +1,5 @@
 package keg.thu.heatmap;
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -21,6 +20,7 @@ import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
 import java.awt.image.Raster;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
@@ -93,9 +93,9 @@ public class Heatmap extends JPanel implements MouseListener {
 
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1)
-			addDotImage(e.getPoint(), 0.8f);
+			addDotImage(e.getPoint(), 0.5f);
 		else if (e.getButton() == MouseEvent.BUTTON3)
-			minusDotImage(e.getPoint(), 0.8f);
+			minusDotImage(e.getPoint(), 0.5f);
 		repaint();
 	}
 
@@ -114,7 +114,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	private void minusDotImage(Point p, float alpha) {
 		int circleRadius = dotImage.getWidth() / 2;
 		Graphics2D g = (Graphics2D) monochromeImage.getGraphics();
-		g.setComposite(BlendComposite.getInstance(BlendingMode.MULTIPLY)           );
+		g.setComposite(BlendComposite.getInstance(BlendingMode.MULTIPLY));
 		g.drawImage(dotImage, null, p.x - circleRadius, p.y - circleRadius);
 	}
 
@@ -181,13 +181,21 @@ public class Heatmap extends JPanel implements MouseListener {
 
 		LinearGradientPaint gradient = new LinearGradientPaint(0, 0,
 				size.width, 1, fractions, colors,
-				MultipleGradientPaint.CycleMethod.REPEAT);
+				MultipleGradientPaint.CycleMethod.NO_CYCLE);
 		BufferedImage im = createCompatibleTranslucentImage(size.width,
 				size.height);
+	
+
 		Graphics2D g = im.createGraphics();
 		g.setPaint(gradient);
 		g.fillRect(0, 0, size.width, size.height);
 		g.dispose();
+
+		// JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(fos);
+		//
+		// encoder.encode(img);
+		//
+		// out.close();
 		return im;
 	}
 
@@ -219,8 +227,9 @@ public class Heatmap extends JPanel implements MouseListener {
 	public static BufferedImage createFadedCircleImage(int size) {
 		float radius = size / 2f;
 		RadialGradientPaint gradient = new RadialGradientPaint(radius, radius,
-				radius, new float[] { 0f, 1f }, new Color[] { Color.black,Color.white
-//						new Color(0xffffffff, true)
+				radius, new float[] { 0f, 1f }, new Color[] { Color.black,
+						Color.white
+				// new Color(0xffffffff, true)
 				});
 		BufferedImage im = createCompatibleTranslucentImage(size, size);
 		Graphics2D g = (Graphics2D) im.getGraphics();

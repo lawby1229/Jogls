@@ -1,6 +1,8 @@
 package thu.cs.keg;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -20,6 +22,7 @@ import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
 import java.awt.image.Raster;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
@@ -42,7 +45,8 @@ public class Heatmap extends JPanel implements MouseListener {
 	private final BufferedImage backgroundImage;
 
 	/**  */
-	private final BufferedImage dotImage = createFadedCircleImage(192);
+	private final BufferedImage dotImage = createFadedCircleImage(94),
+			dotImage2 = createFadedCircleImage2(192);
 
 	private BufferedImage monochromeImage;
 
@@ -54,27 +58,35 @@ public class Heatmap extends JPanel implements MouseListener {
 
 	public Heatmap(BufferedImage backgroundImage) {
 		this.backgroundImage = backgroundImage;
-		int width = backgroundImage.getWidth();
+		int width = backgroundImage.getWidth() + 10;
 		int height = backgroundImage.getHeight();
-
+		outputIm(dotImage, "data/dotImage.png");
+		outputIm(dotImage2, "data/dotImage2.png");
 		// Create lookup operation for colorizing the monochrome image
+		// 产生了一个彩色色条，长64个像素
 		final BufferedImage colorImage = createGradientImage(new Dimension(64,
 				1), Color.WHITE, Color.RED, Color.YELLOW, Color.GREEN.darker(),
 				Color.CYAN, Color.BLUE, new Color(0, 0, 0x33));
+		// 返回一个长度为256的4维度查找表，分别是r，g，b，透明度4个维度
 		final LookupTable colorTable = createColorLookupTable(colorImage, 0.5f);
+		// 构造器
 		colorOp = new LookupOp(colorTable, null);
 
 		// Create monochrome image and fill with with
+		// 得到一张白色的图
 		monochromeImage = createCompatibleTranslucentImage(width, height);
 		Graphics g = monochromeImage.getGraphics();
-		g.setColor(Color.white);
+		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, width, height);
-
 		setPreferredSize(new Dimension(width, height));
+		System.out.print(monochromeImage.getRGB(1, 1));
+
 		addMouseListener(this);
+
 	}
 
 	public BufferedImage colorize(LookupOp colorOp) {
+		outputIm(monochromeImage, "data/mono.png");
 		return colorOp.filter(monochromeImage, null);
 	}
 
@@ -86,13 +98,14 @@ public class Heatmap extends JPanel implements MouseListener {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		heatmapImage = colorize(colorOp);
-		g.drawImage(backgroundImage, 0, 0, this);
+		outputIm(heatmapImage, "data/heatmapImage.png");
+		// g.drawImage(backgroundImage, 0, 0, this);
 		g.drawImage(heatmapImage, 0, 0, this);
 	}
 
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1)
-			addDotImage(e.getPoint(), 0.8f);
+			addDotImage(e.getPoint(), 0.5f);
 		else if (e.getButton() == MouseEvent.BUTTON3)
 			minusDotImage(e.getPoint(), 0.8f);
 		repaint();
@@ -111,10 +124,10 @@ public class Heatmap extends JPanel implements MouseListener {
 	}
 
 	private void minusDotImage(Point p, float alpha) {
-		int circleRadius = dotImage.getWidth() / 2;
+		int circleRadius = dotImage2.getWidth() / 2;
 		Graphics2D g = (Graphics2D) monochromeImage.getGraphics();
-		g.setComposite(BlendComposite.getInstance(BlendingMode.MULTIPLY)           );
-		g.drawImage(dotImage, null, p.x - circleRadius, p.y - circleRadius);
+		// g.setComposite();
+		g.drawImage(dotImage2, null, p.x - circleRadius, p.y - circleRadius);
 	}
 
 	public void mousePressed(MouseEvent e) {
@@ -187,6 +200,7 @@ public class Heatmap extends JPanel implements MouseListener {
 		g.setPaint(gradient);
 		g.fillRect(0, 0, size.width, size.height);
 		g.dispose();
+
 		return im;
 	}
 
@@ -218,8 +232,9 @@ public class Heatmap extends JPanel implements MouseListener {
 	public static BufferedImage createFadedCircleImage(int size) {
 		float radius = size / 2f;
 		RadialGradientPaint gradient = new RadialGradientPaint(radius, radius,
-				radius, new float[] { 0f, 1f }, new Color[] { Color.black,Color.white
-//						new Color(0xffffffff, true)
+				radius, new float[] { 0f, 1f }, new Color[] { Color.BLACK,
+						Color.WHITE
+				// ,new Color(1f,1f,1f,1f)
 				});
 		BufferedImage im = createCompatibleTranslucentImage(size, size);
 		Graphics2D g = (Graphics2D) im.getGraphics();
@@ -227,6 +242,31 @@ public class Heatmap extends JPanel implements MouseListener {
 		g.fillRect(0, 0, size, size);
 		g.dispose();
 		return im;
+	}
+
+	public static BufferedImage createFadedCircleImage2(int size) {
+		float radius = size / 2f;
+		RadialGradientPaint gradient = new RadialGradientPaint(radius, radius,
+				radius, new float[] { 0f, 1f }, new Color[] { Color.BLACK,
+						Color.WHITE
+				// new Color(0xffffffff, true)
+				});
+		BufferedImage im = createCompatibleTranslucentImage(size, size);
+		Graphics2D g = (Graphics2D) im.getGraphics();
+		g.setPaint(gradient);
+		g.fillRect(0, 0, size, size);
+		g.dispose();
+		return im;
+	}
+
+	private void outputIm(BufferedImage im, String path) {
+		try {
+			FileOutputStream fos = new FileOutputStream(path);
+			ImageIO.write(im, "png", fos);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String... args) throws IOException {
