@@ -19,10 +19,13 @@ import java.awt.image.ByteLookupTable;
 import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
 import java.awt.image.Raster;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -37,6 +40,7 @@ import org.jdesktop.swingx.graphics.BlendComposite.BlendingMode;
  * 
  */
 public class Heatmap extends JPanel implements MouseListener {
+	int num = 0;
 	/** */
 	private static final long serialVersionUID = -2105845119293049049L;
 
@@ -44,7 +48,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	private final BufferedImage backgroundImage;
 
 	/**  */
-	private final BufferedImage dotImage = createFadedCircleImage(192);
+	private final BufferedImage dotImage = createFadedCircleImage(32);
 
 	private BufferedImage monochromeImage;
 
@@ -54,9 +58,9 @@ public class Heatmap extends JPanel implements MouseListener {
 	/** Lookup operation used to color the monochrome image according to "heat" */
 	private LookupOp colorOp;
 
-	private double baseLatitude_up = 39.7416;
-	private double baseLatitude_dwon = 40.1778;
-	private double baseY = Math.abs(baseLatitude_up - baseLatitude_dwon);
+	private double baseLatitude_up = 40.0778;
+	private double baseLatitude_down = 39.6316;
+	private double baseY = Math.abs(baseLatitude_up - baseLatitude_down);
 
 	private double baseLogitude_left = 116.1778;
 	private double baseLogitude_right = 116.619;
@@ -84,6 +88,16 @@ public class Heatmap extends JPanel implements MouseListener {
 		addMouseListener(this);
 	}
 
+	public void resetMap() {
+		int width = backgroundImage.getWidth();
+		int height = backgroundImage.getHeight();
+		monochromeImage = createCompatibleTranslucentImage(width, height);
+		Graphics g = monochromeImage.getGraphics();
+		g.setColor(Color.white);
+		g.fillRect(0, 0, width, height);
+		// repaint();
+	}
+
 	public BufferedImage colorize(LookupOp colorOp) {
 		return colorOp.filter(monochromeImage, null);
 	}
@@ -98,6 +112,7 @@ public class Heatmap extends JPanel implements MouseListener {
 		heatmapImage = colorize(colorOp);
 		g.drawImage(backgroundImage, 0, 0, this);
 		g.drawImage(heatmapImage, 0, 0, this);
+
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -111,13 +126,13 @@ public class Heatmap extends JPanel implements MouseListener {
 	public void drawCell(double longi, double lat) {
 		int circleRadius = dotImage.getWidth() / 2;
 		Graphics2D g = (Graphics2D) monochromeImage.getGraphics();
-		g.setComposite(BlendComposite.Multiply);
+		g.setComposite(BlendComposite.Multiply.derive(0.05f));
 		g.drawImage(
 				dotImage,
 				null,
 				(int) Math.rint(((longi - baseLogitude_left) / baseX)
 						* backgroundImage.getWidth() - circleRadius),
-				(int) Math.rint(((lat - baseLatitude_up) / baseY)
+				(int) Math.rint((1-(lat - baseLatitude_down) / baseY)
 						* backgroundImage.getHeight() - circleRadius));
 	}
 
@@ -150,6 +165,25 @@ public class Heatmap extends JPanel implements MouseListener {
 	}
 
 	public void mouseExited(MouseEvent e) {
+	}
+
+	public void outPutHeatmapImage(String path) {
+		try {
+			heatmapImage = colorize(colorOp);
+			int width = backgroundImage.getWidth();
+			int height = backgroundImage.getHeight();
+			BufferedImage image = new BufferedImage(width, height,
+					BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2 = image.createGraphics();
+			g2.drawImage(backgroundImage, 0, 0, this);
+			g2.drawImage(heatmapImage, 0, 0, this);
+
+			FileOutputStream fos = new FileOutputStream(path);
+			ImageIO.write(image, "png", fos);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -258,36 +292,61 @@ public class Heatmap extends JPanel implements MouseListener {
 		g.fillRect(0, 0, size, size);
 		g.dispose();
 		return im;
+
 	}
 
 	public static void main(String... args) throws IOException {
 		BufferedImage backgroundImage = ImageIO.read(new FileInputStream(
 				"data/map2.png"));
 		Heatmap comp = new Heatmap(backgroundImage);
-		JFrame frame = new JFrame("Heatmap");
-		frame.add(comp);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
-		frame.pack();
-		frame.setVisible(true);
+//		JFrame frame = new JFrame("Heatmap");
+//		frame.add(comp);
 
-		ReadData rd = new ReadData("BejingData");
-		List<Double> cell0 = rd.tMap.get(0);
+		ReadData rd = new ReadData("BeijingData");
+		Iterator<Integer> it_timezone = rd.tMap.keySet().iterator();
 		double max = -1, min = Double.MAX_VALUE;
-		for (int i = 0; i < cell0.size(); i++) {
-			if (cell0.get(i) > max)
-				max = cell0.get(i);
-			if (cell0.get(i) < min)
-				min = cell0.get(i);
-		}
-		for (int i = 0; i < cell0.size(); i++) {
-			double longi = Double.valueOf(rd.cellMap.get(i).split(",")[0]);
-			double lat = Double.valueOf(rd.cellMap.get(i).split(",")[1]);
-			for (int j = 0; j < cell0.get(i) * 10 / max; j++) {
-				comp.drawCell(longi, lat);
+		while (it_timezone.hasNext()) {
+			int timezone = it_timezone.next();
+			HashMap<Integer, Double> cell = rd.tMap.get(timezone);
+			Iterator<Integer> it_cell = cell.keySet().iterator();
+			while (it_cell.hasNext()) {
+				int cellid = it_cell.next();
+				if (cell.get(cellid) > max)
+					max = cell.get(cellid);
+				if (cell.get(cellid) < min)
+					min = cell.get(cellid);
 			}
+
 		}
-		frame.repaint();
+		it_timezone = rd.tMap.keySet().iterator();
+		int timezone = -1;
+		while (it_timezone.hasNext() ) {
+			System.out.println("generating:" + timezone);
+			timezone = it_timezone.next();
+			HashMap<Integer, Double> cell0 = rd.tMap.get(timezone);
+			Iterator<Integer> it_cell0 = cell0.keySet().iterator();
+			it_cell0 = cell0.keySet().iterator();
+			while (it_cell0.hasNext()) {
+				int cell = it_cell0.next();
+				double longi = Double.valueOf(rd.cellIdMapLoc.get(cell).split(
+						",")[0]);
+				double lat = Double.valueOf(rd.cellIdMapLoc.get(cell)
+						.split(",")[1]);
+				for (int j = 0; j < cell0.get(cell) * 10 / max; j++) {
+					comp.drawCell(longi, lat);
+				}
+			}
+			// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			// // frame.setResizable(false);
+			// frame.pack();
+//			frame.setVisible(true);
+			comp.num = timezone;
+			comp.outPutHeatmapImage("data/timezong" + timezone + ".png");
+			comp.resetMap();
+
+		}
+System.out.println("FINISHED!!!!!");
+		//
 
 	}
 }

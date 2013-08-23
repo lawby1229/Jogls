@@ -12,12 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ReadData {
-	List<List<Double>> tMap = new ArrayList<List<Double>>();
-	HashMap<Integer, String> cellMap = new HashMap<Integer, String>();
+	HashMap<Integer, HashMap<Integer, Double>> tMap = new HashMap<Integer, HashMap<Integer, Double>>();
+	HashMap<Integer, String> cellIdMapLoc = new HashMap<Integer, String>();
+	HashMap<String, Integer> cellLocMapId = new HashMap<String, Integer>();
 	double min, max;
+
 	public ReadData(String dbname) {
 		for (int i = 0; i < 48; i++) {
-			tMap.add(new ArrayList<Double>());
+			HashMap<Integer, Double> celIdTraffic = new HashMap<Integer, Double>();
+			tMap.put(i, celIdTraffic);
 		}
 		try {
 			viewTable(getConnection(dbname));
@@ -46,33 +49,47 @@ public class ReadData {
 			int timezone = -1;
 			String ConnectionTime = "none";
 			double Traffic;
-			while (rs.next()) {
+			while (rs.next() ) {
 				// System.out.println(i+"条数据读入!");
 				Longitude = rs.getDouble("Longitude");
 				Latitude = rs.getDouble("Latitude");
-				if (!cellMap.containsValue(Longitude + "," + Latitude)) {
-					cellMap.put(cellMap.size(),Longitude + "," + Latitude);
+				String loc = Longitude + "," + Latitude;
+				if (!cellIdMapLoc.containsValue(loc)) {
+					cellIdMapLoc.put(cellIdMapLoc.size(), loc);
+					cellLocMapId.put(loc, cellLocMapId.size());
 				}
-				cellid = cellMap.size()-1;
+				cellid = cellLocMapId.get(loc);
 				Traffic = rs.getDouble("Traffic");
 				Calendar CT = Calendar.getInstance();
 				ConnectionTime = rs.getString("ConnectTime");
-				SimpleDateFormat sdf = new SimpleDateFormat(
-						"yyyy-MM-dd HH:mm:ss");
+				System.out.print(ConnectionTime + " ");
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 				java.util.Date dt = sdf.parse(ConnectionTime);
 				CT.setTime(dt);
 
 				double hour = CT.get(CT.HOUR_OF_DAY);
 				hour = hour + CT.get(CT.MINUTE) / 60.0;
 				timezone = (int) (hour / 0.5);
-				double newTraffic = tMap.get(timezone).get(cellid) + Traffic;
-				tMap.get(timezone).set(cellid, newTraffic);
+				System.out.print(hour + " " + timezone + " " + cellid + " ");
+				if (cellid == 1) {
+					int a = 0;
+					a = 1;
+				}
+				if (!tMap.get(timezone).containsKey(cellid))
+					tMap.get(timezone).put(cellid, 0.0);
+				double newTraffic = tMap.get(timezone).get(cellid)
+						.doubleValue()
+						+ Traffic;
+				tMap.get(timezone).put(cellid, newTraffic);
 				// int day = CT.get(CT.DAY_OF_YEAR);
-				conn.close();
+				System.out.println("   " + i++);
 			}
+			
+			conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println(cellIdMapLoc.size()+","+cellLocMapId.size() + "个基站");
 		System.out.println(i + "个记录时工作日");
 		// if(stmt!=null)
 		// stmt.close();
