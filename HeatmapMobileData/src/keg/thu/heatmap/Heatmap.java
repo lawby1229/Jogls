@@ -59,7 +59,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	private LookupOp colorOp;
 
 	private double baseLatitude_up = 40.0778;
-	private double baseLatitude_down = 39.6316;
+	private double baseLatitude_down = 39.7316;
 	private double baseY = Math.abs(baseLatitude_up - baseLatitude_down);
 
 	private double baseLogitude_left = 116.1778;
