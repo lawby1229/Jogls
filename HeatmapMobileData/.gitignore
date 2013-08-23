@@ -6,6 +6,7 @@
 bin/
 tmp/
 .classpath
+*.png
 
 # External tool builders
 .externalToolBuilders/
