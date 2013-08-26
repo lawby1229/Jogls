@@ -14,7 +14,7 @@ import javax.swing.SwingUtilities;
 import com.sun.opengl.util.FPSAnimator;
 
 public class BeijingFrame extends JFrame {
-	GLRender1 listener=new GLRender1();
+	GLRender listener=new GLRender();
 	static FPSAnimator animator=null;
 	public BeijingFrame() throws HeadlessException {
 		super("JOGL北京");
