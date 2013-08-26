@@ -167,7 +167,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	public void mouseExited(MouseEvent e) {
 	}
 
-	public void outPutHeatmapImage(String path) {
+	private void outPutHeatmapImage(String path) {
 		try {
 			heatmapImage = colorize(colorOp);
 			int width = backgroundImage.getWidth();

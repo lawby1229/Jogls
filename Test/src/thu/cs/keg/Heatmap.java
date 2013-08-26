@@ -14,6 +14,8 @@ import java.awt.MultipleGradientPaint;
 import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.Transparency;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -37,7 +39,7 @@ import org.jdesktop.swingx.graphics.BlendComposite.BlendingMode;
  * An example of a "heat map".
  * 
  */
-public class Heatmap extends JPanel implements MouseListener {
+public class Heatmap extends JPanel implements MouseListener, KeyListener {
 	/** */
 	private static final long serialVersionUID = -2105845119293049049L;
 
@@ -82,6 +84,7 @@ public class Heatmap extends JPanel implements MouseListener {
 		System.out.print(monochromeImage.getRGB(1, 1));
 
 		addMouseListener(this);
+		addKeyListener(this);
 
 	}
 
@@ -98,8 +101,9 @@ public class Heatmap extends JPanel implements MouseListener {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		heatmapImage = colorize(colorOp);
-		outputIm(heatmapImage, "data/heatmapImage.png");
-		// g.drawImage(backgroundImage, 0, 0, this);
+		// outputIm(heatmapImage, "data/heatmapImage.png");
+		g.drawImage(backgroundImage, 0, 0, this);
+		// outPutHeatmapImage("data/heatmapImage.png");
 		g.drawImage(heatmapImage, 0, 0, this);
 	}
 
@@ -107,7 +111,7 @@ public class Heatmap extends JPanel implements MouseListener {
 		if (e.getButton() == MouseEvent.BUTTON1)
 			addDotImage(e.getPoint(), 0.5f);
 		else if (e.getButton() == MouseEvent.BUTTON3)
-			minusDotImage(e.getPoint(), 0.8f);
+			minusDotImage(e.getPoint(), 0.5f);
 		repaint();
 	}
 
@@ -126,7 +130,7 @@ public class Heatmap extends JPanel implements MouseListener {
 	private void minusDotImage(Point p, float alpha) {
 		int circleRadius = dotImage2.getWidth() / 2;
 		Graphics2D g = (Graphics2D) monochromeImage.getGraphics();
-		// g.setComposite();
+		g.setComposite(BlendComposite.Multiply.derive(alpha));
 		g.drawImage(dotImage2, null, p.x - circleRadius, p.y - circleRadius);
 	}
 
@@ -269,15 +273,57 @@ public class Heatmap extends JPanel implements MouseListener {
 		}
 	}
 
+	private void outPutHeatmapImage(String path) {
+		try {
+			heatmapImage = colorize(colorOp);
+			int width = backgroundImage.getWidth();
+			int height = backgroundImage.getHeight();
+			BufferedImage image = new BufferedImage(width, height,
+					BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2 = image.createGraphics();
+			g2.drawImage(backgroundImage, 0, 0, this);
+			g2.drawImage(heatmapImage, 0, 0, this);
+
+			FileOutputStream fos = new FileOutputStream(path);
+			ImageIO.write(image, "png", fos);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String... args) throws IOException {
 		BufferedImage backgroundImage = ImageIO.read(new FileInputStream(
 				"data/map2.png"));
 		JPanel comp = new Heatmap(backgroundImage);
 		JFrame frame = new JFrame("Heatmap");
+		comp.setFocusable(true);
 		frame.add(comp);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		System.out.println(e.getKeyCode());
+
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+
+			outPutHeatmapImage("data/heatmapImage.png");
+			System.out.println("saved!");
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+
 	}
 }
