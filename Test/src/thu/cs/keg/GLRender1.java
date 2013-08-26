@@ -18,7 +18,7 @@ import org.yourorghere.V_Point;
 
 import com.sun.opengl.util.texture.Texture;
 
-public class GLRender implements GLEventListener, KeyListener {
+public class GLRender1 implements GLEventListener, KeyListener {
 
 	static int WIDTH, HEIGHT;
 	static GLAutoDrawable DRAWABLE;
