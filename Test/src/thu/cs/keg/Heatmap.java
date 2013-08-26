@@ -47,8 +47,8 @@ public class Heatmap extends JPanel implements MouseListener, KeyListener {
 	private final BufferedImage backgroundImage;
 
 	/**  */
-	private final BufferedImage dotImage = createFadedCircleImage(94),
-			dotImage2 = createFadedCircleImage2(192);
+	private final BufferedImage dotImage = createFadedCircleImage(128),
+			dotImage2 = createFadedCircleImage2(94);
 
 	private BufferedImage monochromeImage;
 
@@ -267,6 +267,8 @@ public class Heatmap extends JPanel implements MouseListener, KeyListener {
 		try {
 			FileOutputStream fos = new FileOutputStream(path);
 			ImageIO.write(im, "png", fos);
+			fos.close();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -286,6 +288,7 @@ public class Heatmap extends JPanel implements MouseListener, KeyListener {
 
 			FileOutputStream fos = new FileOutputStream(path);
 			ImageIO.write(image, "png", fos);
+			fos.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
