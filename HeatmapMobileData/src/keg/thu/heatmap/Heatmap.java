@@ -1,4 +1,4 @@
-package keg.thu.heatmap;
+package src.keg.thu.heatmap;
 
 import java.awt.Color;
 import java.awt.Dimension;
